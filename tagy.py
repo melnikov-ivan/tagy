@@ -97,15 +97,18 @@ def generate_site(site):
 def clear():
 	# Clear dir
 	folder = BUILD_DIR
-	for name in os.listdir(folder):
-	    path = os.path.join(folder, name)
-	    try:
-	        if os.path.isfile(path):
-	            os.unlink(path)
-	        else: 
-	        	shutil.rmtree(path)
-	    except Exception, e:
-	        print e
+	if os.path.exists(folder):
+		for name in os.listdir(folder):
+		    path = os.path.join(folder, name)
+		    try:
+		        if os.path.isfile(path):
+		            os.unlink(path)
+		        else: 
+		        	shutil.rmtree(path)
+		    except Exception, e:
+		        print e
+	else:
+		os.makedirs(folder)
 
 	# Copy static dir
 	for file_name in os.listdir(STATIC_DIR):
