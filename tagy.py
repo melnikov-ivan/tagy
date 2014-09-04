@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Generate static portfolio site
+Generate static site
 '''
 
 import os
@@ -83,7 +83,7 @@ def load_page(path):
 
 # Generate logic
 
-env = Environment(loader=PackageLoader('portfolio', LAYOUT_DIR))
+env = Environment(loader=PackageLoader('tagy', LAYOUT_DIR))
 
 def generate_site(site):
 	clear()
