@@ -6,8 +6,11 @@ Generate static site
 '''
 
 import os
-import shutil
 import yaml
+import time
+import shutil
+import logging
+
 from collections import defaultdict
 from jinja2 import Environment, PackageLoader
 
@@ -30,8 +33,12 @@ PAGE_PATH = 'path'
 PAGE_LAYOUT = 'layout'
 PAGE_CONTENT = 'content'
 
+log = logging.getLogger('tagy')
+log.setLevel(logging.INFO)
+log.addHandler(logging.StreamHandler())
 
 def generate():
+	log.info('Generate site')
 	site = load_site()
 	generate_site(site)
 
@@ -165,6 +172,26 @@ def get_build_path(page):
 		os.makedirs(dir)
 	return dir + '/index.html'
 
+def get_last_update():
+	'''Get last update time for content directories'''
+	# path = '/tmp/test_tracking/'
+	files = []
+	subdirs = []
+
+	last = None
+	for path in [CONTENT_DIR, STATIC_DIR, LAYOUT_DIR]:
+		for root, dirs, filenames in os.walk(path):
+			# for subdir in dirs:
+			# subdirs.append(os.path.relpath(os.path.join(root, subdir), path))
+
+			for f in filenames:
+				filename = os.path.relpath(os.path.join(root, f), path)
+				file_mtime = os.path.getmtime(os.path.join(path, filename))
+				if file_mtime > last or last is None:
+					last = file_mtime 
+	return last
+
+
 # Jinja filter
 import Image
 def get_thumbnail(value, size=(100, 100)):
@@ -192,4 +219,15 @@ class Config(dict):
     def __setattr__(self, attr, value):
         self[attr] = value
 
-generate()
+
+
+if __name__=='__main__':
+	'''Watch file changed in infinite loop'''
+	updated = None
+	while True:
+		last = get_last_update()
+		if updated != last:
+			updated = last
+			generate()
+		time.sleep(1)
+
