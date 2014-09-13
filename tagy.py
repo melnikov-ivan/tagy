@@ -10,7 +10,9 @@ import yaml
 import time
 import shutil
 import logging
+import optparse
 
+from threading import Thread
 from collections import defaultdict
 from jinja2 import Environment, PackageLoader
 
@@ -185,11 +187,35 @@ def get_last_update():
 			# subdirs.append(os.path.relpath(os.path.join(root, subdir), path))
 
 			for f in filenames:
+				print dirs, filenames
 				filename = os.path.relpath(os.path.join(root, f), path)
 				file_mtime = os.path.getmtime(os.path.join(path, filename))
 				if file_mtime > last or last is None:
 					last = file_mtime 
 	return last
+
+def serve(port=1313):
+	thread = Thread(target=watch)
+	thread.daemon = True
+	# thread.start()
+
+	from SimpleHTTPServer import SimpleHTTPRequestHandler
+	from BaseHTTPServer import HTTPServer
+
+	os.chdir(BUILD_DIR)
+	server = HTTPServer(('', port), SimpleHTTPRequestHandler)
+	server.serve_forever()
+
+def watch():
+	'''Watch file changed in infinite loop'''
+	# TODO: avoid chdir inside thread
+	updated = None
+	while True:
+		last = get_last_update()
+		if updated != last:
+			updated = last
+			generate()
+		time.sleep(1)
 
 
 # Jinja filter
@@ -220,14 +246,53 @@ class Config(dict):
         self[attr] = value
 
 
+# =============================================================================
+# options
+# =============================================================================
 
-if __name__=='__main__':
-	'''Watch file changed in infinite loop'''
-	updated = None
-	while True:
-		last = get_last_update()
-		if updated != last:
-			updated = last
-			generate()
-		time.sleep(1)
+def options():
+    """Parse and validate command line arguments."""
 
+    usage = ("Usage: %prog --build [OPTIONS] [path/to/project]\n"
+             "       %prog --serve [OPTIONS] [path/to/project]\n"
+             "\n"
+             "       Project path is optional, '.' is used as default.")
+
+    op = optparse.OptionParser(usage=usage)
+
+    op.add_option("-b" , "--build", action="store_true", default=False,
+                  help="build project")
+    op.add_option("-s" , "--serve", action="store_true", default=False,
+                  help="serve project")
+
+    og = optparse.OptionGroup(op, "Serve options")
+    og.add_option("" , "--port", default=1313,
+                  metavar="PORT", type="int",
+                  help="port for serving (default: 1313)")
+    op.add_option_group(og)
+
+    opts, args = op.parse_args()
+
+    if opts.build + opts.serve < 1:
+        op.print_help()
+        op.exit()
+
+    opts.project = args and args[0] or "."
+
+    return opts
+
+# =============================================================================
+# main
+# =============================================================================
+
+def main():
+
+    opts = options()
+
+    if opts.build:
+        generate()
+    if opts.serve:
+        serve(opts.port)
+
+if __name__ == '__main__':
+    main()
