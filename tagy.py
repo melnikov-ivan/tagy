@@ -181,15 +181,11 @@ def get_last_update():
 	subdirs = []
 
 	last = None
-	for path in [CONTENT_DIR, STATIC_DIR, LAYOUT_DIR]:
-		for root, dirs, filenames in os.walk(path):
-			# for subdir in dirs:
-			# subdirs.append(os.path.relpath(os.path.join(root, subdir), path))
-
+	for folder in [CONTENT_DIR, STATIC_DIR, LAYOUT_DIR]:
+		for root, dirs, filenames in os.walk(folder):
 			for f in filenames:
-				print dirs, filenames
-				filename = os.path.relpath(os.path.join(root, f), path)
-				file_mtime = os.path.getmtime(os.path.join(path, filename))
+				filename = os.path.relpath(os.path.join(root, f), folder)
+				file_mtime = os.path.getmtime(os.path.join(folder, filename))
 				if file_mtime > last or last is None:
 					last = file_mtime 
 	return last
@@ -197,18 +193,13 @@ def get_last_update():
 def serve(port=1313):
 	thread = Thread(target=watch)
 	thread.daemon = True
-	# thread.start()
+	thread.start()
 
-	from SimpleHTTPServer import SimpleHTTPRequestHandler
-	from BaseHTTPServer import HTTPServer
-
-	os.chdir(BUILD_DIR)
-	server = HTTPServer(('', port), SimpleHTTPRequestHandler)
-	server.serve_forever()
+	# start server
+	os.system("cd %s; python -m SimpleHTTPServer %d" % (BUILD_DIR, port))
 
 def watch():
 	'''Watch file changed in infinite loop'''
-	# TODO: avoid chdir inside thread
 	updated = None
 	while True:
 		last = get_last_update()
