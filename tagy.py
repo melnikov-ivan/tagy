@@ -205,7 +205,10 @@ def watch():
 		last = get_last_update()
 		if updated != last:
 			updated = last
-			generate()
+			try:
+				generate()
+			except Exception, e:
+				print e
 		time.sleep(1)
 
 
