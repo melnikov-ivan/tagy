@@ -213,7 +213,7 @@ def watch():
 
 
 # Jinja filter
-import Image
+from PIL import Image
 def get_thumbnail(value, size=(100, 100)):
 	file_path = BUILD_DIR + value
 	file, ext = os.path.splitext(file_path)
