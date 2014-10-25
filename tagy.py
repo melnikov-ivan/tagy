@@ -212,7 +212,22 @@ def watch():
 		time.sleep(1)
 
 
-# Jinja filter
+# Jinja filters
+
+def breadcrumbs(path):
+	'''Return path chunks'''
+	result = []
+	if path == '':
+		return result
+	current = ''
+	parts = path.split('/')
+	for part in parts:
+		if len(current) > 0:
+			current = current + '/'
+		current = current + part
+		result.append(current)
+	return result
+
 from PIL import Image
 def get_thumbnail(value, size=(100, 100)):
 	file_path = BUILD_DIR + value
@@ -223,6 +238,8 @@ def get_thumbnail(value, size=(100, 100)):
 	im.save(path, "JPEG")
 	return path[len(BUILD_DIR) : ]
 
+env.tests['equalto'] = lambda value, other : value == other
+env.filters['breadcrumbs'] = breadcrumbs
 env.filters['thumb'] = get_thumbnail
 
 
