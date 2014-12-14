@@ -68,8 +68,11 @@ def load_content(dir=CONTENT_DIR):
 	pages = []
 	for subdir, dirs, files in os.walk(dir):
 		for file in files:
+			if file.startswith('.'):
+				continue
 			path = os.path.join(subdir, file)
-			pages.append(load_page(path))
+			page = load_page(path)
+			pages.append(page)
 	return pages
 	
 CONFIG = '---\n'
