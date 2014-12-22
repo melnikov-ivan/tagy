@@ -132,15 +132,19 @@ def clear():
 
 
 def generate_page(page, site):
+	# render content
+	content = env.from_string(page.content)
+	page.content = content.render({'page': page})
+	
+	# render layout
 	template = env.get_template(get_template(page))
+	html = template.render({'page': page, 'site': site})
+
+	# generate page
 	path = get_build_path(page)
 	f = open(path, 'w')
-	# try:
-	html = template.render({'page': page, 'site': site})
 	f.write(html.encode('utf-8'))
 	f.close()
-	# except Exception, e:
-		# print 'Cannot generate page '+page.path, e
 
 def generate_index(name, site):
 	index = getattr(site.indexes, name)
