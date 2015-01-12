@@ -77,14 +77,14 @@ def load_content(dir=CONTENT_DIR):
 	
 CONFIG = '---\n'
 
-from markdown import markdown
+import mistune
 def load_page(path):
 	with open(path, 'r') as f:
 		content = f.read()
 		i = content.find(CONFIG)
 		page = yaml.load(content[:i]) if i > 0 else {}
 		start = i+len(CONFIG) if i > 0 else 0
-		page[PAGE_CONTENT] = markdown(content[start:].decode('utf-8'))
+		page[PAGE_CONTENT] = mistune.markdown(content[start:].decode('utf-8'))
 		path = path[ : path.index('.')]
 		page[PAGE_NAME] = os.path.basename(path)
 		if path.endswith('/index'): # cut index page

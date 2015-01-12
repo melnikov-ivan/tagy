@@ -1,4 +1,4 @@
 Jinja2==2.7
 PyYAML
-markdown
+mistune
 Pillow
