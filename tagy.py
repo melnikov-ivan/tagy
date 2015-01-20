@@ -235,6 +235,20 @@ def breadcrumbs(path):
 		result.append(current)
 	return result
 
+def where(iterator, param, value=True):
+	result = []
+	for item in iterator:
+		if param in item:
+			if isinstance(value, bool): # check item just has a param
+				result.append(item)
+			elif isinstance(value, str): # for strings check starts with
+				if item[param].startswith(value):
+					result.append(item)
+			elif isinstance(value, int): # for numbers check equality
+				if item[param] == value:
+					result.append(item)
+	return result
+
 from PIL import Image
 def get_thumbnail(value, size=(100, 100)):
 	file_path = BUILD_DIR + value
@@ -246,6 +260,7 @@ def get_thumbnail(value, size=(100, 100)):
 	return path[len(BUILD_DIR) : ]
 
 env.tests['equalto'] = lambda value, other : value == other
+env.filters['where'] = where
 env.filters['breadcrumbs'] = breadcrumbs
 env.filters['thumb'] = get_thumbnail
 
