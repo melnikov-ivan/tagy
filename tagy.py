@@ -84,7 +84,10 @@ def load_page(path):
 		i = content.find(CONFIG)
 		page = yaml.load(content[:i]) if i > 0 else {}
 		start = i+len(CONFIG) if i > 0 else 0
-		page[PAGE_CONTENT] = mistune.markdown(content[start:].decode('utf-8'))
+		content = content[start:].decode('utf-8')
+		if path.endswith('.html') | path.endswith('.md'):
+			content = mistune.markdown(content)
+		page[PAGE_CONTENT] = content
 		path = path[ : path.index('.')]
 		page[PAGE_NAME] = os.path.basename(path)
 		if path.endswith('/index'): # cut index page

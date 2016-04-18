@@ -1,4 +1,4 @@
 Jinja2==2.7
 PyYAML
-mistune
+mistune==0.7.2
 Pillow
