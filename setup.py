@@ -4,6 +4,7 @@ setup(
     name='tagy',
     version='0.1.0',
     description='Static site generator',
+    long_description = open("README.md").read(),
     url='https://github.com/melnikov-ivan/tagy',
     author='Ivan Melnikov',
     author_email='melnikov.ivan@gmail.com',
