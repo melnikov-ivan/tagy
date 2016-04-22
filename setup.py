@@ -2,9 +2,9 @@ from setuptools import setup
 
 setup(
     name='tagy',
-    version='0.1.0',
+    version='0.1.2',
     description='Static site generator',
-    long_description = open("README.md").read(),
+#    long_description = open("README.md").read(),
     url='https://github.com/melnikov-ivan/tagy',
     author='Ivan Melnikov',
     author_email='melnikov.ivan@gmail.com',
