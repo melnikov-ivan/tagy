@@ -14,7 +14,7 @@ import optparse
 
 from threading import Thread
 from collections import defaultdict
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, FileSystemLoader
 
 
 # Core config params
@@ -80,27 +80,27 @@ CONFIG = '---\n'
 import mistune
 def load_page(path):
 	with open(path, 'r') as f:
-		content = f.read()
-		i = content.find(CONFIG)
-		page = yaml.load(content[:i]) if i > 0 else {}
-		start = i+len(CONFIG) if i > 0 else 0
-		content = content[start:].decode('utf-8')
-		if path.endswith('.html') | path.endswith('.md'):
-			content = mistune.markdown(content)
-		page[PAGE_CONTENT] = content
-		path = path[ : path.index('.')]
-		page[PAGE_NAME] = os.path.basename(path)
-		if path.endswith('/index'): # cut index page
-			path = path[ : path.index('/index')]
-		page[PAGE_PATH] = path[len(CONTENT_DIR + '/') : ]
-		return Config(page)
-	except:
-		print 'Failed to read page "%s"' % path
-
+		try:
+			content = f.read()
+			i = content.find(CONFIG)
+			page = yaml.load(content[:i]) if i > 0 else {}
+			start = i+len(CONFIG) if i > 0 else 0
+			content = content[start:].decode('utf-8')
+			if path.endswith('.html') | path.endswith('.md'):
+				content = mistune.markdown(content)
+			page[PAGE_CONTENT] = content
+			path = path[ : path.index('.')]
+			page[PAGE_NAME] = os.path.basename(path)
+			if path.endswith('/index'): # cut index page
+				path = path[ : path.index('/index')]
+			page[PAGE_PATH] = path[len(CONTENT_DIR + '/') : ]
+			return Config(page)
+		except:
+			print 'Failed to read page "%s"' % path
 
 # Generate logic
 
-env = Environment(loader=PackageLoader('tagy', LAYOUT_DIR))
+env = Environment(loader=FileSystemLoader(LAYOUT_DIR))
 
 def generate_site(site):
 	clear()
