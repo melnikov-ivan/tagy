@@ -94,6 +94,8 @@ def load_page(path):
 			path = path[ : path.index('/index')]
 		page[PAGE_PATH] = path[len(CONTENT_DIR + '/') : ]
 		return Config(page)
+	except:
+		print 'Failed to read page "%s"' % path
 
 
 # Generate logic
@@ -104,7 +106,10 @@ def generate_site(site):
 	clear()
 
 	for page in site.pages:
-		generate_page(page, site)
+		try:
+			generate_page(page, site)
+		except:
+			print 'Failed to generate page "%s"' % page[PAGE_PATH]
 
 	for name in iter(site.indexes):
 		generate_index(name, site)
