@@ -100,7 +100,7 @@ def load_page(path):
 
 # Generate logic
 
-env = Environment(loader=FileSystemLoader(LAYOUT_DIR))
+env = Environment(loader=FileSystemLoader(LAYOUT_DIR), autoescape=False)
 
 def generate_site(site):
 	clear()
@@ -138,8 +138,12 @@ def clear():
 	    else:
 	    	shutil.copytree(full_file_name, os.path.join(BUILD_DIR, file_name))
 
+# TODO: use decorator for paging
+paging_params = 'params'
+def generate_page(page, site, page_num=None):
+	if PAGE_NUM not in env.globals:
+		env.globals[paging_params] = {'page': page, 'site': site}
 
-def generate_page(page, site):
 	# render content
 	content = env.from_string(page.content)
 	page.content = content.render({'page': page})
@@ -149,10 +153,14 @@ def generate_page(page, site):
 	html = template.render({'page': page, 'site': site})
 
 	# generate page
-	path = get_build_path(page)
+	path = get_build_path(page, page_num)
 	f = open(path, 'w')
 	f.write(html.encode('utf-8'))
 	f.close()
+
+	if PAGE_NUM not in env.globals:
+		del env.globals[paging_params]
+
 
 def generate_index(name, site):
 	index = getattr(site.indexes, name)
@@ -162,7 +170,9 @@ def generate_index(name, site):
 		
 		page = Config()
 		page.path = index.url + '/' + term
-		f = open(get_build_path(page), 'w')
+
+		path = get_build_path(page)
+		f = open(path, 'w')
 
 		html = template.render({'term': term, 'pages': index.terms[term], 'site': site})
 		f.write(html.encode('utf-8'))
@@ -175,13 +185,17 @@ def get_template(page):
 	if PAGE_LAYOUT in page:
 		return page[PAGE_LAYOUT]
 	return 'index.html'
+	
 
 # Return fancy url for path
-def get_build_path(page):
+def get_build_path(page, page_num=None):
 	if PAGE_URL in page:
 		return BUILD_DIR + '/' + page.url
 
 	dir = BUILD_DIR + '/' + page.path
+
+	if page_num	:	
+		dir = dir + '/' + str(page_num)
 
 	try:
 		os.stat(dir)
@@ -267,10 +281,28 @@ def get_thumbnail(value, size=(100, 100)):
 	im.save(path, "JPEG")
 	return path[len(BUILD_DIR) : ]
 
+
+PAGE_NUM = 'paging'
+def paging(l, page_size=2):
+	page_num = 0
+	if PAGE_NUM not in env.globals:
+		params = env.globals[paging_params]
+		total = len(l) / page_size + len(l) % page_size
+		for n in range(1, total):
+			env.globals[PAGE_NUM] = n
+			generate_page(params['page'], site=params['site'], page_num=n)
+			del(env.globals[PAGE_NUM])
+	else:
+		page_num = env.globals[PAGE_NUM]
+
+	return l[page_num * page_size: (page_num + 1) * page_size]
+
+
 env.tests['equalto'] = lambda value, other : value == other
 env.filters['where'] = where
 env.filters['breadcrumbs'] = breadcrumbs
 env.filters['thumb'] = get_thumbnail
+env.filters['paging'] = paging
 
 
 
