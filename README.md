@@ -25,6 +25,13 @@ cd tagy
 python setup.py install
 ```
 
+Tests
+-----
+
+`
+python -m unittest discover tests "*_test.py"
+`
+
 Sites powered by Tagy
 ---------------------
  * http://imelnikov.ru
