@@ -150,7 +150,7 @@ def generate_page(page, site, page_num=None):
 	
 	# render layout
 	template = env.get_template(get_template(page))
-	html = template.render({'page': page, 'site': site})
+	html = template.render({'page': page, 'site': site, 'page_num': page_num if page_num else 0})
 
 	# generate page
 	path = get_build_path(page, page_num)

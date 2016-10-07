@@ -1,6 +1,14 @@
-test
 {{ page.content }}
 
 {% for i in page.list | paging(page_size=2) %}
     {{ i }}
 {% endfor %}
+
+{{ page_num | default(0) }}
+
+
+{# len(page.list)/2  #}
+
+{% if page_num < (page.list | length)/2 %} 
+next {{ page_num + 1 }}
+{% endif %}
