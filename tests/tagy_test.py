@@ -1,4 +1,5 @@
 import unittest
+import os
 import sys
 sys.path.append('../')
 import tagy
@@ -9,7 +10,8 @@ class TagyTest(unittest.TestCase):
         print "SETUP!"
 
     def tearDown(self):
-        print "TEAR DOWN!"
+        pass
+        # os.removedirs('public')
 
     def test_pager(self):
         
@@ -22,6 +24,9 @@ class TagyTest(unittest.TestCase):
         tagy.generate_page(page, site)
 
         if not open('public/pager/index.html').read():
+            return -1
+
+        if not open('public/pager/1/index.html').read():
             return -1
 
 

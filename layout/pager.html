@@ -1,6 +1,6 @@
 test
 {{ page.content }}
 
-{% for i in page.list %}
+{% for i in page.list | paging(page_size=2) %}
     {{ i }}
 {% endfor %}
