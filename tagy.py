@@ -39,10 +39,10 @@ log = logging.getLogger('tagy')
 log.setLevel(logging.INFO)
 log.addHandler(logging.StreamHandler())
 
-def generate():
+def generate(silent=False):
 	log.info('Generate site')
 	site = load_site()
-	generate_site(site)
+	generate_site(site, silent)
 
 def load_site():
 	# load basic configs
@@ -102,14 +102,17 @@ def load_page(path):
 
 env = Environment(loader=FileSystemLoader(LAYOUT_DIR))
 
-def generate_site(site):
+def generate_site(site, silent):
 	clear()
 
 	for page in site.pages:
 		try:
 			generate_page(page, site)
-		except:
-			print 'Failed to generate page "%s"' % page[PAGE_PATH]
+		except Exception, e:
+			if silent:
+				print 'Failed to generate page "%s"' % page[PAGE_PATH]
+			else:
+				raise e
 
 	for name in iter(site.indexes):
 		generate_index(name, site)
@@ -221,7 +224,7 @@ def watch():
 		if updated != last:
 			updated = last
 			try:
-				generate()
+				generate(silent=True)
 			except Exception, e:
 				print e
 		time.sleep(1)
