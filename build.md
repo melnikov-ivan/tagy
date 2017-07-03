@@ -6,6 +6,7 @@ pip install -e .
 pip install twine
 
 # Упаковка 
+rm dist/*
 python setup.py sdist
 
 # аплоэд

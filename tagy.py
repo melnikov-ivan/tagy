@@ -267,7 +267,7 @@ def get_thumbnail(value, size=(100, 100)):
 	path = (file + '-%dx%d' + ext) % size
 	im = Image.open(file_path)
 	im.thumbnail(size, Image.ANTIALIAS)
-	im.save(path, "JPEG")
+	im.save(path, "PNG")
 	return path[len(BUILD_DIR) : ]
 
 env.tests['equalto'] = lambda value, other : value == other
