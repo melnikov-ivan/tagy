@@ -25,6 +25,13 @@ cd tagy
 python setup.py install
 ```
 
+Development
+-----------
+```
+cd tests/
+python -m unittest tagy_test
+```
+
 Sites powered by Tagy
 ---------------------
  * http://imelnikov.ru
