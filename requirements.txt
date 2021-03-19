@@ -1,4 +1,4 @@
-Jinja2==2.7
+Jinja2==2.11.3
 PyYAML
 mistune==0.7.2
 Pillow
