@@ -23,7 +23,7 @@ setup(
     install_requires=[
        'Jinja2==2.11.3',
         'PyYAML',
-        'mistune==0.8.1',
+        'mistune==2.0.3',
         'Pillow',
     ],
 )
