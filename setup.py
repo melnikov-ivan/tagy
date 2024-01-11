@@ -21,7 +21,7 @@ setup(
     # packages=find_packages(exclude=['contrib', 'docs', 'tests'])
     py_modules=["tagy"],
     install_requires=[
-       'Jinja2==2.11.3',
+       'Jinja2==3.1.3',
         'PyYAML',
         'mistune==0.8.1',
         'Pillow',
