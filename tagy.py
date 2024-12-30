@@ -264,14 +264,14 @@ def where(iterator, param, value=True):
 	return result
 
 from PIL import Image
-def get_thumbnail(value, size=(100, 100)):
-	file_path = BUILD_DIR + value
+def get_thumbnail(value, size=(100, 100), dir=BUILD_DIR):
+	file_path = dir + value
 	file, ext = os.path.splitext(file_path)
 	path = (file + '-%dx%d' + ext) % size
 	im = Image.open(file_path)
-	im.thumbnail(size, Image.ANTIALIAS)
+	im.thumbnail(size, Image.LANCZOS)
 	im.save(path, "PNG")
-	return path[len(BUILD_DIR) : ]
+	return path[len(dir) : ]
 
 env.tests['equalto'] = lambda value, other : value == other
 env.filters['where'] = where
