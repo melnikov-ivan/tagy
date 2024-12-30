@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='tagy',
-    version='0.1.7',
+    version='0.2.0',
     description='Static site generator',
 #    long_description = open("README.md").read(),
     url='https://github.com/melnikov-ivan/tagy',
@@ -21,7 +21,7 @@ setup(
     # packages=find_packages(exclude=['contrib', 'docs', 'tests'])
     py_modules=["tagy"],
     install_requires=[
-       'Jinja2==2.11.3',
+       'Jinja2==3.1',
         'PyYAML',
         'mistune==0.8.1',
         'Pillow',

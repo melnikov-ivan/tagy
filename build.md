@@ -8,6 +8,7 @@ pip install twine
 
 # Упаковка 
 rm dist/*
+pip install setuptools
 python setup.py sdist
 
 # аплоэд
