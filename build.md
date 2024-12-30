@@ -1,8 +1,9 @@
 # локальная установка
+python3 -m venv venv
 source venv/bin/activate
 pip install -e .
 
-#тулза
+# тулза
 pip install twine
 
 # Упаковка 

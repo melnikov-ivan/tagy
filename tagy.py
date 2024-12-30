@@ -18,7 +18,7 @@ from jinja2 import Environment, FileSystemLoader
 
 
 # Core config params
-
+CONFIG_FILE = 'config.yaml'
 CONTENT_DIR = 'content'
 LAYOUT_DIR = 'layout'
 STATIC_DIR = 'static'
@@ -46,8 +46,7 @@ def generate(silent=False):
 
 def load_site():
 	# load basic configs
-	with open('config.yaml', 'r') as f:
-		site = Config(yaml.load(f))
+	site = load_config()
 
 	# add pages
 	site[SITE_PAGES] = load_content()
@@ -63,6 +62,10 @@ def load_site():
 					index.setdefault('terms', {}).setdefault(term, []).append(page)
 
 	return site
+
+def load_config(path=CONFIG_FILE):
+	with open(path, 'r') as f:
+		return Config(yaml.safe_load(f))
 
 def load_content(dir=CONTENT_DIR):
 	pages = []
@@ -96,7 +99,7 @@ def load_page(path):
 			page[PAGE_PATH] = path[len(CONTENT_DIR + '/') : ]
 			return Config(page)
 		except:
-			print 'Failed to read page "%s"' % path
+			log.warning('Failed to read page "%s"', path)
 
 # Generate logic
 
@@ -108,9 +111,9 @@ def generate_site(site, silent):
 	for page in site.pages:
 		try:
 			generate_page(page, site)
-		except Exception, e:
+		except Exception as e:
 			if silent:
-				print 'Failed to generate page "%s"' % page[PAGE_PATH]
+				log.warning('Failed to generate page "%s"', page[PAGE_PATH])
 			else:
 				raise e
 
@@ -122,24 +125,24 @@ def clear():
 	folder = BUILD_DIR
 	if os.path.exists(folder):
 		for name in os.listdir(folder):
-		    path = os.path.join(folder, name)
-		    try:
-		        if os.path.isfile(path):
-		            os.unlink(path)
-		        else: 
-		        	shutil.rmtree(path)
-		    except Exception, e:
-		        print e
+			path = os.path.join(folder, name)
+			try:
+				if os.path.isfile(path):
+					os.unlink(path)
+				else: 
+					shutil.rmtree(path)
+			except Exception as e:
+				log.exception(e)
 	else:
 		os.makedirs(folder)
 
 	# Copy static dir
 	for file_name in os.listdir(STATIC_DIR):
-	    full_file_name = os.path.join(STATIC_DIR, file_name)
-	    if (os.path.isfile(full_file_name)):
-	        shutil.copy(full_file_name, BUILD_DIR)
-	    else:
-	    	shutil.copytree(full_file_name, os.path.join(BUILD_DIR, file_name))
+		full_file_name = os.path.join(STATIC_DIR, file_name)
+		if (os.path.isfile(full_file_name)):
+			shutil.copy(full_file_name, BUILD_DIR)
+		else:
+			shutil.copytree(full_file_name, os.path.join(BUILD_DIR, file_name))
 
 
 def generate_page(page, site):
@@ -225,8 +228,8 @@ def watch():
 			updated = last
 			try:
 				generate(silent=True)
-			except Exception, e:
-				print e
+			except Exception as e:
+				log.exception(e)
 		time.sleep(1)
 
 
@@ -279,15 +282,16 @@ env.filters['thumb'] = get_thumbnail
 
 # Model for config params
 class Config(dict):
-    def __getattr__(self, attr):
-    	if attr not in self:
-    		return None
-    	result = self[attr]
-    	if isinstance(result, dict):
-    		result = Config(result)
-        return result
-    def __setattr__(self, attr, value):
-        self[attr] = value
+	def __getattr__(self, attr):
+		if attr not in self:
+			return None
+		result = self[attr]
+		if isinstance(result, dict):
+			# TODO: why?
+			result = Config(result)
+		return result
+	def __setattr__(self, attr, value):
+		self[attr] = value
 
 
 # =============================================================================
