@@ -10,7 +10,7 @@ class TagyTest(unittest.TestCase):
     def tearDown(self):
         print("TEAR DOWN!")
 
-    def test_basic(self):
+    def test_load_config(self):
         text = """
             domain: imelnikov.ru
             file: True

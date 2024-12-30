@@ -86,9 +86,9 @@ def load_page(path):
 		try:
 			content = f.read()
 			i = content.find(CONFIG)
-			page = yaml.load(content[:i]) if i > 0 else {}
+			page = yaml.safe_load(content[:i]) if i > 0 else {}
 			start = i+len(CONFIG) if i > 0 else 0
-			content = content[start:].decode('utf-8')
+			content = content[start:]
 			if path.endswith('.html') | path.endswith('.md'):
 				content = mistune.markdown(content)
 			page[PAGE_CONTENT] = content
@@ -98,8 +98,8 @@ def load_page(path):
 				path = path[ : path.index('/index')]
 			page[PAGE_PATH] = path[len(CONTENT_DIR + '/') : ]
 			return Config(page)
-		except:
-			log.warning('Failed to read page "%s"', path)
+		except Exception as e:
+			log.warning('Failed to read page "%s"', path, e)
 
 # Generate logic
 
