@@ -2,7 +2,7 @@ import unittest
 import tagy
 import os
 
-class TagyTest(unittest.TestCase):
+class ThumbTest(unittest.TestCase):
     def test_load_page(self):
         thumb = tagy.get_thumbnail("/dev-cover.png", (100, 100), "img")
         self.assertEqual(thumb, "/dev-cover-100x100.png")

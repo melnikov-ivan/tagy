@@ -1,7 +1,7 @@
 import unittest
 import tagy
 
-class TagyTest(unittest.TestCase):
+class PageTest(unittest.TestCase):
     def test_load_page(self):
         page = tagy.load_page("page.md")
         self.assertEqual(page.title, "title")

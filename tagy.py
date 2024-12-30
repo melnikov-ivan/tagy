@@ -156,9 +156,8 @@ def generate_page(page, site):
 
 	# generate page
 	path = get_build_path(page)
-	f = open(path, 'w')
-	f.write(html.encode('utf-8'))
-	f.close()
+	with open(path, 'w') as f:
+		f.write(html)
 
 def generate_index(name, site):
 	index = getattr(site.indexes, name)
