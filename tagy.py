@@ -167,11 +167,10 @@ def generate_index(name, site):
 		
 		page = Config()
 		page.path = index.url + '/' + term
-		f = open(get_build_path(page), 'w')
 
 		html = template.render({'term': term, 'pages': index.terms[term], 'site': site})
-		f.write(html.encode('utf-8'))
-		f.close()
+		with open(get_build_path(page), 'w') as f:
+			f.write(html)
 
 
 
