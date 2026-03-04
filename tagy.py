@@ -236,7 +236,7 @@ def serve(port=1313):
 	thread.start()
 
 	# start server
-	os.system("cd %s; python -m SimpleHTTPServer %d" % (BUILD_DIR, port))
+	os.system("cd %s; python3 -m http.server %d" % (BUILD_DIR, port))
 
 def watch():
 	'''Watch file changed in infinite loop'''
