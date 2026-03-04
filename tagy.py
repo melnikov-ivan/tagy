@@ -323,7 +323,7 @@ def paginate(ctx, items, per_page=10):
 		has_next=page_num < total_pages,
 		prev_num=page_num - 1 if page_num > 1 else None,
 		next_num=page_num + 1 if page_num < total_pages else None,
-		base_path=page.path if page else '',
+		base_path=(page.path.rsplit('/', 1)[0] if page_num > 1 else page.path) if page else '',
 	)
 
 env.tests['equalto'] = lambda value, other : value == other
