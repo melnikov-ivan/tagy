@@ -11,10 +11,11 @@ import time
 import shutil
 import logging
 import optparse
+from types import SimpleNamespace
 
 from threading import Thread
 from collections import defaultdict
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, pass_context
 
 
 # Core config params
@@ -104,9 +105,16 @@ def load_page(path):
 # Generate logic
 
 env = Environment(loader=FileSystemLoader(LAYOUT_DIR))
+_pagination_queue = []
+
+def _get_env():
+	if env.loader.searchpath != [LAYOUT_DIR]:
+		env.loader = FileSystemLoader(LAYOUT_DIR)
+	return env
 
 def generate_site(site, silent):
 	clear()
+	_pagination_queue.clear()
 
 	for page in site.pages:
 		try:
@@ -116,6 +124,18 @@ def generate_site(site, silent):
 				log.warning('Failed to generate page "%s"', page[PAGE_PATH])
 			else:
 				raise e
+
+	i = 0
+	while i < len(_pagination_queue):
+		page = _pagination_queue[i]
+		try:
+			generate_page(page, site)
+		except Exception as e:
+			if silent:
+				log.warning('Failed to generate pagination page "%s"', page[PAGE_PATH])
+			else:
+				raise e
+		i += 1
 
 	for name in iter(site.indexes):
 		generate_index(name, site)
@@ -147,11 +167,12 @@ def clear():
 
 def generate_page(page, site):
 	# render content
-	content = env.from_string(page.content)
-	page.content = content.render({'page': page})
-	
+	e = _get_env()
+	content = e.from_string(page.content)
+	page.content = content.render({'page': page, 'site': site})
+
 	# render layout
-	template = env.get_template(get_template(page))
+	template = e.get_template(get_template(page))
 	html = template.render({'page': page, 'site': site})
 
 	# generate page
@@ -163,7 +184,7 @@ def generate_index(name, site):
 	index = getattr(site.indexes, name)
 	for term in iter(index.terms):
 		# TODO: remove layout from yaml
-		template = env.get_template(get_template(index))
+		template = _get_env().get_template(get_template(index))
 		
 		page = Config()
 		page.path = index.url + '/' + term
@@ -205,7 +226,7 @@ def get_last_update():
 			for f in filenames:
 				filename = os.path.relpath(os.path.join(root, f), folder)
 				file_mtime = os.path.getmtime(os.path.join(folder, filename))
-				if file_mtime > last or last is None:
+				if  last is None or file_mtime > last:
 					last = file_mtime 
 	return last
 
@@ -215,7 +236,7 @@ def serve(port=1313):
 	thread.start()
 
 	# start server
-	os.system("cd %s; python -m SimpleHTTPServer %d" % (BUILD_DIR, port))
+	os.system("cd %s; python3 -m http.server %d" % (BUILD_DIR, port))
 
 def watch():
 	'''Watch file changed in infinite loop'''
@@ -271,10 +292,45 @@ def get_thumbnail(value, size=(100, 100), dir=BUILD_DIR):
 	im.save(path, "PNG")
 	return path[len(dir) : ]
 
+@pass_context
+def paginate(ctx, items, per_page=10):
+	page = ctx.get('page')
+	page_num = 1
+	if page and page.pagination:
+		page_num = page.pagination.page_num or 1
+
+	items = list(items)
+	total = len(items)
+	total_pages = max(1, (total + per_page - 1) // per_page)
+	start = (page_num - 1) * per_page
+	page_items = items[start:start + per_page]
+
+	if page_num == 1 and page and total_pages > 1:
+		base_path = page.path
+		for n in range(2, total_pages + 1):
+			new_page = Config(dict(page))
+			new_page.pagination = Config({'page_num': n})
+			new_page.path = base_path + '/' + str(n)
+			_pagination_queue.append(new_page)
+
+	return SimpleNamespace(
+		page_num=page_num,
+		items=page_items,
+		total=total,
+		per_page=per_page,
+		total_pages=total_pages,
+		has_prev=page_num > 1,
+		has_next=page_num < total_pages,
+		prev_num=page_num - 1 if page_num > 1 else None,
+		next_num=page_num + 1 if page_num < total_pages else None,
+		base_path=(page.path.rsplit('/', 1)[0] if page_num > 1 else page.path) if page else '',
+	)
+
 env.tests['equalto'] = lambda value, other : value == other
 env.filters['where'] = where
 env.filters['breadcrumbs'] = breadcrumbs
 env.filters['thumb'] = get_thumbnail
+env.globals['paginate'] = paginate
 
 
 

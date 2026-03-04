@@ -2,3 +2,6 @@
 venv
 dist/*
 tagy.egg-info/*
+public/
+tests/public/
+.DS_Store
