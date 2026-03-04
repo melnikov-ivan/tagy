@@ -107,6 +107,11 @@ def load_page(path):
 env = Environment(loader=FileSystemLoader(LAYOUT_DIR))
 _pagination_queue = []
 
+def _get_env():
+	if env.loader.searchpath != [LAYOUT_DIR]:
+		env.loader = FileSystemLoader(LAYOUT_DIR)
+	return env
+
 def generate_site(site, silent):
 	clear()
 	_pagination_queue.clear()
@@ -162,11 +167,12 @@ def clear():
 
 def generate_page(page, site):
 	# render content
-	content = env.from_string(page.content)
+	e = _get_env()
+	content = e.from_string(page.content)
 	page.content = content.render({'page': page, 'site': site})
-	
+
 	# render layout
-	template = env.get_template(get_template(page))
+	template = e.get_template(get_template(page))
 	html = template.render({'page': page, 'site': site})
 
 	# generate page
@@ -178,7 +184,7 @@ def generate_index(name, site):
 	index = getattr(site.indexes, name)
 	for term in iter(index.terms):
 		# TODO: remove layout from yaml
-		template = env.get_template(get_template(index))
+		template = _get_env().get_template(get_template(index))
 		
 		page = Config()
 		page.path = index.url + '/' + term
@@ -220,7 +226,7 @@ def get_last_update():
 			for f in filenames:
 				filename = os.path.relpath(os.path.join(root, f), folder)
 				file_mtime = os.path.getmtime(os.path.join(folder, filename))
-				if file_mtime > last or last is None:
+				if  last is None or file_mtime > last:
 					last = file_mtime 
 	return last
 
