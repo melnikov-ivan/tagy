@@ -66,6 +66,29 @@ class PaginationTest(unittest.TestCase):
         result = self._call(list(range(20)), per_page=10)
         self.assertEqual(result.base_path, 'blog')
 
+    def test_pager_links(self):
+        tagy.LAYOUT_DIR = 'layout'
+        content = (
+            '{% set p = paginate(site.pages, 2) %}'
+            '{% if p.has_prev %}<a href="/{{ p.base_path }}/{{ p.prev_num }}">prev</a>{% endif %}'
+            '{% if p.has_next %}<a href="/{{ p.base_path }}/{{ p.next_num }}">next</a>{% endif %}'
+        )
+        pages = [tagy.Config({'path': 'blog', 'layout': 'page.html', 'content': content})]
+        pages += [tagy.Config({'path': 'p%d' % i, 'layout': 'page.html', 'content': ''}) for i in range(1, 4)]
+        site = tagy.Config({'domain': 'x', 'pages': pages})
+        tagy._pagination_queue.clear()
+
+        tagy.generate_page(pages[0], site)
+        page1_html = open('public/blog/index.html').read()
+        self.assertNotIn('prev', page1_html)
+        self.assertIn('<a href="/blog/2">next</a>', page1_html)
+
+        page2 = tagy._pagination_queue[0]
+        tagy.generate_page(page2, site)
+        page2_html = open('public/blog/2/index.html').read()
+        self.assertIn('<a href="/blog/1">prev</a>', page2_html)
+        self.assertNotIn('next', page2_html)
+
     def test_generate_site_processes_queue(self):
         tagy.LAYOUT_DIR = 'layout'
         tagy.CONTENT_DIR = '.'
