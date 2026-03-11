@@ -1,6 +1,6 @@
 Tagy
 ====
-[![Build Status](https://travis-ci.org/melnikov-ivan/tagy.svg?branch=master)](https://travis-ci.org/melnikov-ivan/tagy)
+[![tests](https://github.com/melnikov-ivan/tagy/actions/workflows/tests.yml/badge.svg)](https://github.com/melnikov-ivan/tagy/actions/workflows/tests.yml)
 
 Python static site generator
 
