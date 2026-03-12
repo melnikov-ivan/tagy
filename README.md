@@ -32,6 +32,10 @@ cd tests/
 python -m unittest tagy_test
 ```
 
+Documentation
+-------------
+[docs.md](docs.md)
+
 Sites powered by Tagy
 ---------------------
  * http://imelnikov.ru
